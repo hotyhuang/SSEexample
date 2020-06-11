@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, height=device-height" />
+    <title>Server-Sent Events Demo</title>
+    <style type="text/css">
+        body {
+            font-family: 'Open Sans', sans-serif;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Server-Sent Events Demo</h1>
+    <button onclick="start()">Start SSE</button>
+    <button onclick="stop()">Stop SSE</button>
+
+    <ul></ul>
+
+    <script>
+        var es;
+        var ul = document.querySelector('ul');
+        function li(text) {
+            var li = document.createElement('li');
+            li.innerText = text;
+            ul.appendChild(li);
+        }
+
+        function start() {
+            es = new EventSource('/events');
+            
+            es.addEventListener('open', function() {
+                li('Server connected :)');
+            });
+            es.addEventListener('message', function(event) {
+                li(event.data);
+            });
+            es.addEventListener('error', function() {
+                li('Server unavailable :(');
+            });
+        }
+
+        function stop() {
+            es.close();
+            es = null;
+            li('Disconnected: ' + new Date().toString())
+        }
+    </script>
+
+</body>
+</html>
