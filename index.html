@@ -13,38 +13,49 @@
 <body>
 
     <h1>Server-Sent Events Demo</h1>
-    <button onclick="start()">Start SSE</button>
-    <button onclick="stop()">Stop SSE</button>
+    <button onclick="add()">Add New SSE</button>
 
     <ul></ul>
 
     <script>
-        var es;
+        var id = 0;
+        var esList = [];
         var ul = document.querySelector('ul');
-        function li(text) {
-            var li = document.createElement('li');
-            li.innerText = text;
-            ul.appendChild(li);
+        function updateText(ele, text) {
+            ele.innerText = text;
         }
 
-        function start() {
-            es = new EventSource('/events');
-            
-            es.addEventListener('open', function() {
-                li('Server connected :)');
-            });
-            es.addEventListener('message', function(event) {
-                li(event.data);
-            });
-            es.addEventListener('error', function() {
-                li('Server unavailable :(');
-            });
-        }
-
-        function stop() {
+        function stop(es) {
             es.close();
             es = null;
-            li('Disconnected: ' + new Date().toString())
+            this.remove()
+        }
+
+        function add() {
+            var li = document.createElement('li');
+            li.innerText = '';
+            ul.appendChild(li);
+
+            var text = document.createElement('h5')
+            text.innerText = '';
+            li.appendChild(text);
+
+            var es = new EventSource('/stream/' + (id++));
+            
+            es.addEventListener('open', function() {
+                updateText(text, 'Server connected :)');
+            });
+            es.addEventListener('slamdunk', function(event) {
+                updateText(text, event.data);
+            });
+            es.addEventListener('error', function() {
+                updateText(text, 'Server unavailable :(');
+            });
+
+            var button = document.createElement('button')
+            button.innerHTML = 'Stop me'
+            button.addEventListener('click', stop.bind(button, es))
+            li.appendChild(button)
         }
     </script>
 
